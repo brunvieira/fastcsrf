@@ -8,17 +8,34 @@ Library.
 # Usage
 
 ```go
-type TestHandler struct {
-}
+package main
 
-func (h *TestHandler) HandleStatusOK(ctx *fasthttp.RequestCtx) {
+import (
+    "github.com/brunvieira/fastcsrf"
+    "github.com/valyala/fasthttp"    
+)
+
+func testStatusOk(ctx *fasthttp.RequestCtx) {
 	ctx.SetStatusCode(fasthttp.StatusOK)
 }
+func main() {
+    // use with default values
+    fasthttp.ListenAndServe(":8080", CSRF(testStatusOk))
+    
+    // use with custom config
+    config := CSRFConfig{}
+    config.TokenLength = 64
+    config.TokenLookup = "form:csrfToken" // now it will look for the csrfToken field in the post/put form. See docs for options
+    config.CookieName = "fastcsrf"
+    config.CookieDomain = "github.com"
+    config.CookiePath = "/brunvieira"
+    config.CookieMaxAge = 24 * 60 * 1000
+    config.CookieSecure = true
+    config.CookieHTTPOnly = true
+   
+    fasthttp.ListenAndServe(":8081", CSRFWithConfig(c)(testStatusOk))
+} 
 
-var testHandler = TestHandler{}
-var testStatusOk = testHandler.HandleStatusOK
-
-fasthttp.ListenAndServe(":8080", CSRF(testStatusOk))
 ```
 
 # License
