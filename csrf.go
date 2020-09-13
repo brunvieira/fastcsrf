@@ -4,7 +4,6 @@ import (
 	"crypto/subtle"
 	"errors"
 	"math/rand"
-	"net/http"
 	"strings"
 	"time"
 
@@ -129,16 +128,16 @@ func CSRFWithConfig(config CSRFConfig) func(fasthttp.RequestHandler) fasthttp.Re
 			}
 
 			switch string(method) {
-			case http.MethodGet, http.MethodHead, http.MethodOptions, http.MethodTrace:
+			case fasthttp.MethodGet, fasthttp.MethodHead, fasthttp.MethodOptions, fasthttp.MethodTrace:
 			default:
 				// Validate token only for requests which are not defined as 'safe' by RFC7231
 				clientToken, err := extractor(ctx)
 				if err != nil {
-					ctx.Error(err.Error(), http.StatusBadRequest)
+					ctx.Error(err.Error(), fasthttp.StatusBadRequest)
 					return
 				}
 				if !validateCSRFToken(token, clientToken) {
-					ctx.Error(InvalidCSRFToken, http.StatusForbidden)
+					ctx.Error(InvalidCSRFToken, fasthttp.StatusForbidden)
 					return
 				}
 			}
